@@ -1,5 +1,6 @@
 import React from "react";
 import { useState } from "react";
+import PropTypes from "prop-types";
 
 const ActionProvider = ({
   createChatBotMessage,
@@ -158,6 +159,12 @@ const ActionProvider = ({
       })}
     </div>
   );
+};
+ActionProvider.propTypes = {
+  createChatBotMessage: PropTypes.func.isRequired,
+  setState: PropTypes.func.isRequired,
+  children: PropTypes.node.isRequired,
+  state: PropTypes.object,
 };
 
 export default ActionProvider;

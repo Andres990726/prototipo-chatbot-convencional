@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 const MessageParser = ({ children, actions, state }) => {
   const parse = (message) => {
@@ -35,6 +36,21 @@ const MessageParser = ({ children, actions, state }) => {
       })}
     </div>
   );
+};
+
+MessageParser.propTypes = {
+  children: PropTypes.node.isRequired,
+  actions: PropTypes.shape({
+    handleIDInput: PropTypes.func.isRequired,
+    handleInvalidID: PropTypes.func.isRequired,
+    handleScheduleAppointment: PropTypes.func.isRequired,
+    handleViewAppointments: PropTypes.func.isRequired,
+    handleTalkToAdvisor: PropTypes.func.isRequired,
+    handleUnknownMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  state: PropTypes.shape({
+    expectingID: PropTypes.bool,
+  }).isRequired,
 };
 
 export default MessageParser;
