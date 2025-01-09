@@ -1,99 +1,131 @@
 class ActionProvider {
-  constructor(createChatbotMessage, setStateFunc) {
-    this.createChatbotMessage = createChatbotMessage;
+  constructor(createChatBotMessage, setStateFunc, stateRef) {
+    this.createChatBotMessage = createChatBotMessage;
     this.setState = setStateFunc;
+    this.stateRef = stateRef; // Referencia al estado global
+    this.appointmentDetails = {};
   }
 
-  // Mostrar las opciones iniciales
-  showInitialOptions = () => {
-    const message = this.createChatbotMessage("¿En qué puedo ayudarte?", {
-      widget: "optionsWidget",
-    });
-
-    const initialOptions = [
-      {
-        text: "Programar una cita médica",
-        action: "handleScheduleAppointment",
-      },
-      { text: "Consultar citas programadas", action: "handleViewAppointments" },
-      { text: "Hablar con un asesor", action: "handleTalkToAgent" },
-    ];
-
-    this.updateChatbotState(message, initialOptions);
-  };
-
-  // Manejar la programación de una cita
   handleScheduleAppointment = () => {
-    const message = this.createChatbotMessage(
-      "¿Es para ti o para otra persona?",
-      {
-        widget: "optionsWidget",
-      }
+    const message = this.createChatBotMessage(
+      "Perfecto, puedo ayudarte a programar una cita. Por favor, dime si es para ti o para otra persona.",
+      { widget: "patientOptions" }
     );
-
-    const options = [
-      { text: "Para mí", action: "handlePersonalAppointment" },
-      { text: "Para otra persona", action: "handleOtherPersonAppointment" },
-    ];
-
-    this.updateChatbotState(message, options);
-  };
-
-  handlePersonalAppointment = () => {
-    const message = this.createChatbotMessage(
-      "Por favor, ingresa tu número de identificación para continuar."
-    );
-    this.updateChatbotState(message);
-  };
-
-  handleOtherPersonAppointment = () => {
-    const message = this.createChatbotMessage(
-      "Por favor, ingresa el número de identificación de la persona."
-    );
-    this.updateChatbotState(message);
-  };
-
-  handleViewAppointments = () => {
-    const message = this.createChatbotMessage(
-      "Actualmente no tienes citas programadas. ¿Deseas programar una nueva cita?",
-      {
-        widget: "optionsWidget",
-      }
-    );
-
-    const options = [
-      { text: "Sí, programar cita", action: "handleScheduleAppointment" },
-      { text: "No, gracias", action: "showInitialOptions" },
-    ];
-
-    this.updateChatbotState(message, options);
-  };
-
-  handleTalkToAgent = () => {
-    const message = this.createChatbotMessage(
-      "Un asesor estará contigo en breve. ¿Hay algo más en lo que pueda ayudarte?",
-      {
-        widget: "optionsWidget",
-      }
-    );
-
-    const options = [
-      { text: "Sí, quiero otra cosa", action: "showInitialOptions" },
-      { text: "No, gracias", action: "" },
-    ];
-
-    this.updateChatbotState(message, options);
-  };
-
-  // Método para actualizar el estado del chatbot
-  updateChatbotState = (message, options = []) => {
     this.setState((prevState) => ({
       ...prevState,
       messages: [...prevState.messages, message],
-      widgets:
-        options.length > 0
-          ? [{ widgetName: "optionsWidget", props: { options } }]
-          : [],
+    }));
+  };
+
+  handleViewAppointments = () => {
+    const message = this.createChatBotMessage(
+      "Aquí están tus citas programadas: [listado de citas]"
+    );
+    this.setState((prevState) => ({
+      ...prevState,
+      messages: [...prevState.messages, message],
+    }));
+  };
+
+  handleTalkToAdvisor = () => {
+    const message = this.createChatBotMessage("Conectándote con un asesor...");
+    this.setState((prevState) => ({
+      ...prevState,
+      messages: [...prevState.messages, message],
+    }));
+  };
+
+  handleAskForID = () => {
+    const message = this.createChatBotMessage(
+      "Por favor, ingresa tu número de identificación para continuar."
+    );
+    this.setState((prevState) => ({
+      ...prevState,
+      expectingID: true,
+      messages: [...prevState.messages, message],
+    }));
+  };
+
+  handleInvalidID = () => {
+    const message = this.createChatBotMessage(
+      "El número de identificación ingresado no es válido. Por favor, ingresa solo números."
+    );
+    this.setState((prevState) => ({
+      ...prevState,
+      messages: [...prevState.messages, message],
+    }));
+  };
+
+  handleIDInput = (id) => {
+    this.setState((prevState) => ({ ...prevState, expectingID: false }));
+    this.appointmentDetails.id = id;
+    const message = this.createChatBotMessage(
+      "Gracias. Ahora selecciona el tipo de servicio médico que necesitas:",
+      { widget: "serviceOptions" }
+    );
+    this.setState((prevState) => ({
+      ...prevState,
+      messages: [...prevState.messages, message],
+    }));
+  };
+
+  handleSelectService = (service) => {
+    this.appointmentDetails.service = service;
+    const message = this.createChatBotMessage(
+      `Seleccionaste ${service}. Por favor, selecciona la ciudad o municipio donde deseas programar tu cita.`,
+      { widget: "locationOptions" }
+    );
+    this.setState((prevState) => ({
+      ...prevState,
+      messages: [...prevState.messages, message],
+    }));
+  };
+
+  handleSelectLocation = (location) => {
+    this.appointmentDetails.location = location;
+    const message = this.createChatBotMessage(
+      `Seleccionaste ${location}. Ahora selecciona el horario que más te convenga.`,
+      { widget: "timeOptions" }
+    );
+    this.setState((prevState) => ({
+      ...prevState,
+      messages: [...prevState.messages, message],
+    }));
+  };
+
+  handleSelectTime = (time) => {
+    this.appointmentDetails.time = time;
+    const message = this.createChatBotMessage(
+      `Cita confirmada: \nServicio: ${this.appointmentDetails.service} \nLugar: ${this.appointmentDetails.location} \nHora: ${time}. \n¿Es correcto?`,
+      {
+        widget: "endOptions",
+      }
+    );
+    this.setState((prevState) => ({
+      ...prevState,
+      messages: [...prevState.messages, message],
+    }));
+  };
+
+  handleConfirmAppointment = () => {
+    const details = this.appointmentDetails;
+    const message = this.createChatBotMessage(
+      `¡Cita programada con éxito! \nDetalles: \nServicio: ${details.service} \nLugar: ${details.location} \nHora: ${details.time}. ¿Hay algo más en lo que pueda ayudarte?`,
+      { widget: "endOptions" }
+    );
+    this.setState((prevState) => ({
+      ...prevState,
+      messages: [...prevState.messages, message],
+    }));
+  };
+
+  handleUnknownMessage = () => {
+    const message = this.createChatBotMessage(
+      "Lo siento, no entendí tu mensaje. ¿Puedes intentarlo de nuevo?"
+    );
+    this.setState((prevState) => ({
+      ...prevState,
+      messages: [...prevState.messages, message],
     }));
   };
 }

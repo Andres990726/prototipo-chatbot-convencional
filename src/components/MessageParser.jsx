@@ -1,22 +1,37 @@
 class MessageParser {
-  constructor(actionProvider) {
+  constructor(actionProvider, stateRef) {
     this.actionProvider = actionProvider;
+    this.stateRef = stateRef;
   }
 
   parse(message) {
-    const lowerCaseMessage = message.toLowerCase();
+    const trimmedMessage = message.trim();
+    const { expectingID } = this.stateRef.current;
 
-    if (lowerCaseMessage.includes("cita")) {
+    if (expectingID) {
+      if (/^\d+$/.test(trimmedMessage)) {
+        this.actionProvider.handleIDInput(trimmedMessage);
+      } else {
+        this.actionProvider.handleInvalidID();
+      }
+      return;
+    }
+
+    if (
+      trimmedMessage.toLowerCase().includes("cita") ||
+      trimmedMessage.toLowerCase().includes("programar")
+    ) {
       this.actionProvider.handleScheduleAppointment();
-    } else if (lowerCaseMessage.includes("asesor")) {
-      this.actionProvider.handleTalkToAgent();
+    } else if (trimmedMessage.toLowerCase().includes("consultar")) {
+      this.actionProvider.handleViewAppointments();
+    } else if (trimmedMessage.toLowerCase().includes("asesor")) {
+      this.actionProvider.handleTalkToAdvisor();
     } else {
-      const defaultMessage = this.actionProvider.createChatbotMessage(
-        "Lo siento, no entendí eso. Por favor, selecciona una opción de la lista."
-      );
-      this.actionProvider.updateChatbotState(defaultMessage);
+      this.actionProvider.handleUnknownMessage();
     }
   }
 }
 
 export default MessageParser;
+
+
