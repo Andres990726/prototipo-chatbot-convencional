@@ -1,116 +1,122 @@
-class ActionProvider {
-  constructor(createChatBotMessage, setStateFunc, stateRef) {
-    this.createChatBotMessage = createChatBotMessage;
-    this.setState = setStateFunc;
-    this.stateRef = stateRef; // Referencia al estado global
-    this.appointmentDetails = {};
-  }
+import React from "react";
+import { useState } from "react";
 
-  handleScheduleAppointment = () => {
-    const message = this.createChatBotMessage(
+const ActionProvider = ({
+  createChatBotMessage,
+  setState,
+  children,
+  state,
+}) => {
+  const [data, setData] = useState({
+    id: "",
+    service: "",
+    location: "",
+    time: "",
+  });
+
+  const handleScheduleAppointment = () => {
+    const botMessage = createChatBotMessage(
       "Perfecto, puedo ayudarte a programar una cita. Por favor, dime si es para ti o para otra persona.",
       { widget: "patientOptions" }
     );
-    this.setState((prevState) => ({
-      ...prevState,
-      messages: [...prevState.messages, message],
+    setState((prev) => ({
+      ...prev,
+      messages: [...prev.messages, botMessage],
     }));
   };
-
-  handleViewAppointments = () => {
-    const message = this.createChatBotMessage(
+  const handleViewAppointments = () => {
+    const message = createChatBotMessage(
       "Aquí están tus citas programadas: [listado de citas]"
     );
-    this.setState((prevState) => ({
+    setState((prevState) => ({
       ...prevState,
       messages: [...prevState.messages, message],
     }));
   };
 
-  handleTalkToAdvisor = () => {
-    const message = this.createChatBotMessage("Conectándote con un asesor...");
-    this.setState((prevState) => ({
+  const handleTalkToAdvisor = () => {
+    const message = createChatBotMessage("Conectándote con un asesor...");
+    setState((prevState) => ({
       ...prevState,
       messages: [...prevState.messages, message],
     }));
   };
 
-  handleAskForID = () => {
-    const message = this.createChatBotMessage(
+  const handleAskForID = () => {
+    const message = createChatBotMessage(
       "Por favor, ingresa tu número de identificación para continuar."
     );
-    this.setState((prevState) => ({
+    setState((prevState) => ({
       ...prevState,
       expectingID: true,
       messages: [...prevState.messages, message],
     }));
   };
 
-  handleInvalidID = () => {
-    const message = this.createChatBotMessage(
+  const handleInvalidID = () => {
+    const message = createChatBotMessage(
       "El número de identificación ingresado no es válido. Por favor, ingresa solo números."
     );
-    this.setState((prevState) => ({
+    setState((prevState) => ({
       ...prevState,
       messages: [...prevState.messages, message],
     }));
   };
 
-  handleIDInput = (id) => {
-    this.setState((prevState) => ({ ...prevState, expectingID: false }));
-    this.appointmentDetails.id = id;
-    const message = this.createChatBotMessage(
+  const handleIDInput = (id) => {
+    setState((prevState) => ({ ...prevState, expectingID: false }));
+    setData({ ...data, id });
+    const message = createChatBotMessage(
       "Gracias. Ahora selecciona el tipo de servicio médico que necesitas:",
       { widget: "serviceOptions" }
     );
-    this.setState((prevState) => ({
+    setState((prevState) => ({
       ...prevState,
       messages: [...prevState.messages, message],
     }));
   };
 
-  handleSelectService = (service) => {
-    this.appointmentDetails.service = service;
-    const message = this.createChatBotMessage(
+  const handleSelectService = (service) => {
+    setData({ ...data, service });
+    const message = createChatBotMessage(
       `Seleccionaste ${service}. Por favor, selecciona la ciudad o municipio donde deseas programar tu cita.`,
       { widget: "locationOptions" }
     );
-    this.setState((prevState) => ({
+    setState((prevState) => ({
       ...prevState,
       messages: [...prevState.messages, message],
     }));
   };
 
-  handleSelectLocation = (location) => {
-    this.appointmentDetails.location = location;
-    const message = this.createChatBotMessage(
+  const handleSelectLocation = (location) => {
+    setData({ ...data, location });
+    const message = createChatBotMessage(
       `Seleccionaste ${location}. Ahora selecciona el horario que más te convenga.`,
       { widget: "timeOptions" }
     );
-    this.setState((prevState) => ({
+    setState((prevState) => ({
       ...prevState,
       messages: [...prevState.messages, message],
     }));
   };
 
-  handleSelectTime = (time) => {
-    this.appointmentDetails.time = time;
-    const message = this.createChatBotMessage(
-      `Cita confirmada: \nServicio: ${this.appointmentDetails.service} \nLugar: ${this.appointmentDetails.location} \nHora: ${time}. \n¿Es correcto?`,
+  const handleSelectTime = (time) => {
+    setData({ ...data, time });
+    const message = createChatBotMessage(
+      `Cita confirmada: \nServicio: ${data.service} \nLugar: ${data.location} \nHora: ${time}. \n¿Es correcto?`,
       {
         widget: "endOptions",
       }
     );
-    this.setState((prevState) => ({
+    setState((prevState) => ({
       ...prevState,
       messages: [...prevState.messages, message],
     }));
   };
 
-  handleConfirmAppointment = () => {
-    const details = this.appointmentDetails;
-    const message = this.createChatBotMessage(
-      `¡Cita programada con éxito! \nDetalles: \nServicio: ${details.service} \nLugar: ${details.location} \nHora: ${details.time}. ¿Hay algo más en lo que pueda ayudarte?`,
+  const handleConfirmAppointment = () => {
+    const message = createChatBotMessage(
+      `¡Cita programada con éxito! \nDetalles: \nServicio: ${data.service} \nLugar: ${data.location} \nHora: ${data.time}. ¿Hay algo más en lo que pueda ayudarte?`,
       { widget: "endOptions" }
     );
     this.setState((prevState) => ({
@@ -119,15 +125,39 @@ class ActionProvider {
     }));
   };
 
-  handleUnknownMessage = () => {
-    const message = this.createChatBotMessage(
+  const handleUnknownMessage = () => {
+    const message = createChatBotMessage(
       "Lo siento, no entendí tu mensaje. ¿Puedes intentarlo de nuevo?"
     );
-    this.setState((prevState) => ({
+    setState((prevState) => ({
       ...prevState,
       messages: [...prevState.messages, message],
     }));
   };
-}
+
+  // Put the handleHello and handleDog function in the actions object to pass to the MessageParser
+  return (
+    <div>
+      {React.Children.map(children, (child) => {
+        return React.cloneElement(child, {
+          actions: {
+            handleScheduleAppointment,
+            handleViewAppointments,
+            handleTalkToAdvisor,
+            handleAskForID,
+            handleInvalidID,
+            handleIDInput,
+            handleSelectService,
+            handleSelectLocation,
+            handleSelectTime,
+            handleConfirmAppointment,
+            handleUnknownMessage,
+          },
+          state,
+        });
+      })}
+    </div>
+  );
+};
 
 export default ActionProvider;

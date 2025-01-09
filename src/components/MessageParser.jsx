@@ -1,37 +1,40 @@
-class MessageParser {
-  constructor(actionProvider, stateRef) {
-    this.actionProvider = actionProvider;
-    this.stateRef = stateRef;
-  }
+import React from "react";
 
-  parse(message) {
+const MessageParser = ({ children, actions, state }) => {
+  const parse = (message) => {
     const trimmedMessage = message.trim();
-    const { expectingID } = this.stateRef.current;
-
-    if (expectingID) {
+    if (state.expectingID) {
       if (/^\d+$/.test(trimmedMessage)) {
-        this.actionProvider.handleIDInput(trimmedMessage);
+        actions.handleIDInput(trimmedMessage);
       } else {
-        this.actionProvider.handleInvalidID();
+        actions.handleInvalidID();
       }
       return;
     }
-
     if (
       trimmedMessage.toLowerCase().includes("cita") ||
       trimmedMessage.toLowerCase().includes("programar")
     ) {
-      this.actionProvider.handleScheduleAppointment();
+      actions.handleScheduleAppointment();
     } else if (trimmedMessage.toLowerCase().includes("consultar")) {
-      this.actionProvider.handleViewAppointments();
+      actions.handleViewAppointments();
     } else if (trimmedMessage.toLowerCase().includes("asesor")) {
-      this.actionProvider.handleTalkToAdvisor();
+      actions.handleTalkToAdvisor();
     } else {
-      this.actionProvider.handleUnknownMessage();
+      actions.handleUnknownMessage();
     }
-  }
-}
+  };
+
+  return (
+    <div>
+      {React.Children.map(children, (child) => {
+        return React.cloneElement(child, {
+          parse: parse,
+          actions,
+        });
+      })}
+    </div>
+  );
+};
 
 export default MessageParser;
-
-
