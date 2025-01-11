@@ -2,7 +2,15 @@ import PropTypes from "prop-types";
 
 export const TaskOptions = ({ actionProvider }) => {
   return (
-    <div>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        gap: "10px",
+        padding: "20px",
+      }}
+    >
       <button onClick={actionProvider.handleScheduleAppointment}>
         Programar una cita médica
       </button>
@@ -18,7 +26,15 @@ export const TaskOptions = ({ actionProvider }) => {
 
 export const PatientOptions = ({ actionProvider }) => {
   return (
-    <div>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        gap: "10px",
+        padding: "20px",
+      }}
+    >
       <button onClick={actionProvider.handleAskForID}>Para mí</button>
       <button onClick={actionProvider.handleAskForID}>Para otra persona</button>
     </div>
@@ -27,7 +43,15 @@ export const PatientOptions = ({ actionProvider }) => {
 
 export const ServiceOptions = ({ actionProvider }) => {
   return (
-    <div>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        gap: "10px",
+        padding: "20px",
+      }}
+    >
       <button
         onClick={() => actionProvider.handleSelectService("Medicina general")}
       >
@@ -49,15 +73,23 @@ export const ServiceOptions = ({ actionProvider }) => {
 
 export const LocationOptions = ({ actionProvider }) => {
   return (
-    <div>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        gap: "10px",
+        padding: "20px",
+      }}
+    >
       <button onClick={() => actionProvider.handleSelectLocation("Pasto")}>
         Pasto
       </button>
-      <button onClick={() => actionProvider.handleSelectLocation("Ipiales")}>
-        Ipiales
+      <button onClick={() => actionProvider.handleSelectLocation("Cali")}>
+        Cali
       </button>
-      <button onClick={() => actionProvider.handleSelectLocation("Tumaco")}>
-        Tumaco
+      <button onClick={() => actionProvider.handleSelectLocation("Popayán")}>
+        Popayán
       </button>
     </div>
   );
@@ -65,7 +97,15 @@ export const LocationOptions = ({ actionProvider }) => {
 
 export const TimeOptions = ({ actionProvider }) => {
   return (
-    <div>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        gap: "10px",
+        padding: "20px",
+      }}
+    >
       <button onClick={() => actionProvider.handleSelectTime("8:00 a.m.")}>
         8:00 a.m.
       </button>
@@ -84,7 +124,15 @@ export const TimeOptions = ({ actionProvider }) => {
 
 export const EndOptions = ({ actionProvider }) => {
   return (
-    <div>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        gap: "10px",
+        padding: "20px",
+      }}
+    >
       <button onClick={actionProvider.handleScheduleAppointment}>
         Sí, necesito algo más
       </button>
